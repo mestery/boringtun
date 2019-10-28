@@ -1,0 +1,56 @@
+version: "3.3"
+services:
+  wireguard1:
+    container_name: wireguard1
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      wireguard:
+        ipv4_address: 10.2.2.10
+    cap_add:
+      - IPC_LOCK
+      - NET_ADMIN
+    privileged: true
+    ports:
+      - "36190:36190"
+    environment:
+      WG_LOG_LEVEL: "debug"
+      WG_QUICK_USERSPACE_IMPLEMENTATION: "/app/boringtun"
+      WG_SUDO: "1"
+      WG_THREADS: "4"
+      INTERFACE_NAME: "wg0"
+    volumes:
+      - "./data/wire1:/etc/wireguard"
+    tty: true
+
+  wireguard2:
+    container_name: wireguard2
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      wireguard:
+        ipv4_address: 10.2.2.20
+    cap_add:
+      - IPC_LOCK
+      - NET_ADMIN
+    privileged: true
+    ports:
+      - "36191:36191"
+    environment:
+      WG_LOG_LEVEL: "debug"
+      WG_QUICK_USERSPACE_IMPLEMENTATION: "/app/boringtun"
+      WG_SUDO: "1"
+      WG_THREADS: "4"
+      INTERFACE_NAME: "wg0"
+    volumes:
+      - "./data/wire2:/etc/wireguard"
+    tty: true
+
+networks:
+  wireguard:
+    ipam:
+      driver: default
+      config:
+        - subnet: "10.2.2.0/24"
